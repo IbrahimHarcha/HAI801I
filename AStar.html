@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>A Star Algorithm</title>
+</head>
+
+<body>
+    <script>
+        function aStar(depart, objectif, graphe, heuristiques) {
+
+            let frontiere = [{ name: depart, cost: 0, priority: heuristiques[depart] }];
+            let cameFrom = {};
+            let costSoFar = {};
+            costSoFar[depart] = 0;
+
+            while (frontiere.length > 0) {
+                frontiere.sort((a, b) => a.priority - b.priority);
+                let current = frontiere.shift();
+
+                if (current.name === objectif) {
+                    let path = [];
+                    while (current.name !== depart) {
+                        path.push(current.name);
+                        current.name = cameFrom[current.name];
+                    }
+                    path.push(depart);
+                    return path.reverse();
+                }
+
+                Object.keys(graphe[current.name]).forEach(neighbor => {
+                    let newCost = costSoFar[current.name] + graphe[current.name][neighbor];
+                    if (!(neighbor in costSoFar) || newCost < costSoFar[neighbor]) {
+                        costSoFar[neighbor] = newCost;
+                        let priority = newCost + heuristiques[neighbor];
+                        frontiere.push({ name: neighbor, cost: newCost, priority: priority });
+                        cameFrom[neighbor] = current.name;
+                    }
+                });
+            }
+
+            return null;
+        }
+
+        let graphe = {
+            'A': { 'B': 2, 'C': 10, 'D': 3 },
+            'B': { 'A': 2, 'E': 8 },
+            'E': { 'F': 5, 'B': 8, 'H': 10 },
+            'D': { 'A': 3, 'C': 2, 'F': 4 },
+            'C': { 'A': 10, 'D': 2, 'G': 2 },
+            'F': { 'D': 4, 'E': 5, 'G': 5 },
+            'G': { 'C': 2, 'F': 5, 'H': 1 },
+            'H': { 'E': 10, 'G': 1 }
+        };
+
+        let heuristiques = {
+            'A': 9,
+            'B': 3,
+            'E': 8,
+            'D': 6,
+            'C': 5,
+            'F': 4,
+            'G': 2,
+            'H': 0
+        };
+
+        let path = aStar('A', 'H', graphe, heuristiques);
+        console.log("Chemin: ", path);
+
+    </script>
+</body>
+
+</html>
